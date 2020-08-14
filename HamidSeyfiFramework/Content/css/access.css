@@ -1,0 +1,125 @@
+.containerMenu {
+    border-radius: 3px;
+    padding: 5px;
+    width: 60%;
+    margin: 0 auto;
+}
+
+h1 {
+    font-weight: normal;
+    font-size: 25px;
+}
+
+    h1:hover {
+        cursor: pointer;
+    }
+
+/* Context menu */
+.context-menu {
+    display: none;
+    position: absolute;
+    border: 1px solid black;
+    border-radius: 3px;
+    width: 200px;
+    background: white;
+    box-shadow: 10px 10px 5px #888888;
+}
+
+    .context-menu ul {
+        list-style: none;
+        padding: 2px;
+    }
+
+        .context-menu ul li {
+            padding: 5px 2px;
+            margin-bottom: 3px;
+            color: white;
+            font-weight: bold;
+            background-color: darkturquoise;
+        }
+
+            .context-menu ul li:hover {
+                cursor: pointer;
+                background-color: #7fffd4;
+            }
+
+/* Colors */
+.Gainsboro, .Orange, .Plum {
+    width: 15px;
+    height: 15px;
+    border: 0px solid black;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.Gainsboro {
+    background-color: Gainsboro;
+}
+
+.Orange {
+    background-color: Orange;
+}
+
+.Plum {
+    background-color: Plum;
+}
+
+
+/*Tree Menu*/
+ul, #treeUL {
+    list-style-type: none !important;
+}
+
+#treeUL {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.caretLi {
+    cursor: pointer !important;
+    -webkit-user-select: none !important; /* Safari 3.1+ */
+    -moz-user-select: none !important; /* Firefox 2+ */
+    -ms-user-select: none !important; /* IE 10+ */
+    user-select: none !important;
+}
+
+    .caretLi::after {
+        /*content: "\25B6" !important;*/
+        content: "\25C0" !important;
+        color: black !important;
+        display: inline-block !important;
+        margin-right: 6px !important;
+    }
+
+    .caretLi::before, .singleLi::before {
+        content: "\25A0" !important;
+        color: black !important;
+        display: inline-block !important;
+        margin-left: 6px !important;
+    }
+
+
+.caretLi-down::after {
+    -ms-transform: rotate(90deg) !important; /* IE 9 */
+    -webkit-transform: rotate(90deg) !important; /* Safari */
+    transform: rotate(90deg) !important;
+}
+
+.nested {
+    display: none !important;
+}
+
+.active {
+    display: block !important;
+}
+
+#treeUL li {
+    cursor: pointer;
+    /*float:right;*/
+}
+
+#treeUL span:hover {
+    background-color: #f28b74;
+}
+/************/
+

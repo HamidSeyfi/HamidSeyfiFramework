@@ -1,0 +1,363 @@
+﻿@{
+    Layout = "~/Views/Shared/_Blank.cshtml";
+    ViewBag.Title = "Access";
+}
+
+<link href="~/Content/css/access.css" rel="stylesheet" />
+
+<div class="row">
+    <div class="col-xs-12">
+        <!----------------- Tree -------------------->
+        <div id="AccessTree">
+
+        </div>
+        <!------------------------------------->
+        <!-- Context-menu -->
+        <div class="containerMenu">
+            <div class='context-menu'>
+                <ul>
+                    <li data-operation="Add"><span>ایجاد زیر منو</span></li>
+                    <li data-operation="Update"><span>ویرایش</span></li>
+                    <li data-operation="Delete"><span>حذف</span></li>
+                </ul>
+            </div>
+            <input type='hidden' id='txt_accessId'>
+            <input type='hidden' id='txt_operation'>
+        </div>
+        <!----------------------------->
+        <!-- Modal -->
+        <div id="AccessModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">مشخصات دسترسی</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label class="control-label col-md-4">
+                                    نام فارسی دسترسی پدر
+                                </label>
+                                <div class="col-md-8">
+                                    <input class="form-control" type="text" readonly id="ParentAccessName" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4" for="IsMenu" style="position:relative;top:-4px">
+                                    منو
+                                </label>
+                                <div class="col-md-8">
+                                    <input type="checkbox" name="IsMenu" id="IsMenu" value="" style="position:relative;top:4px" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4">
+                                    نام دسترسی
+                                </label>
+                                <div class="col-md-8">
+                                    <input class="form-control" type="text" name="AccessName" id="AccessName" value="" style="direction:ltr" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4">
+                                    نام فارسی دسترسی
+                                </label>
+                                <div class="col-md-8">
+                                    <input class="form-control" type="text" name="AccessNameFa" id="AccessNameFa" value="" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4">
+                                    ترتیب
+                                </label>
+                                <div class="col-md-8">
+                                    <input class="form-control Numeric" type="text" name="Order" id="Order" value="" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4">
+                                    آدرس
+                                </label>
+                                <div class="col-md-8">
+                                    <input class="form-control" type="text" name="Url" id="Url" value="" style="direction:ltr" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" onclick="AccessModalOk()">تایید</button>
+                        <button type="button" class="btn btn-danger" onclick="HideModal()">انصراف</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+
+    //--------------------------------------------------------------------------------------
+    $(document).ready(function () {
+        GenerateAccessTree();
+    });
+    //--------------------------------------------------------------------------------------
+    function GenerateAccessTree() {
+
+        $.ajax({
+            url: "/Access/GenerateAccessTree",
+            type: 'GET',
+            success: function (result) {
+
+                if (result.success == false) {
+                    alert(result.msg);
+                    return;
+                }
+
+                $("#AccessTree").empty();
+                $("#AccessTree").html(result.tree);
+
+
+                var toggler = $(".caretLi");
+                for (var i = 0; i < toggler.length; i++) {
+                    toggler[i].addEventListener("click", function () {
+                        this.parentElement.querySelector(".nested").classList.toggle("active");
+                        this.classList.toggle("caretLi-down");
+                    });
+                }
+
+
+                //---------------- Context Menu -------------------//
+                // Hide context menu
+                $(document).bind('contextmenu click', function () {
+                    $(".context-menu").hide();
+                });
+
+                // disable right click and show custom context menu
+                $("#AccessTree li").bind('contextmenu', function (e) {
+                    var id = this.id;
+                    $("#txt_accessId").val(id);
+
+                    var top = e.pageY - 150;
+                    var left = e.pageX - 225;
+
+                    // Show contextmenu
+                    $(".context-menu").toggle(100).css({
+                        top: top + "px",
+                        left: left + "px"
+                    });
+
+                    // Disable default menu
+                    return false;
+                });
+
+                // disable context-menu from custom menu
+                $('.context-menu').bind('contextmenu', function () {
+                    return false;
+                });
+                //-------------------------------------------------//
+
+            },
+            error: function (e) {
+                alert(CustomJsMassages.FetchDataError);
+            }
+        });
+    }
+    //--------------------------------------------------------------------------------------
+    // Clicked context-menu item
+    $('.context-menu li').click(function () { 
+        var operation = $(this).attr("data-operation");
+        $("#txt_operation").val(operation);
+
+        if (operation == "Delete") {
+            if (confirm(CustomJsMassages.AreYouSure)) {
+                DeleteAccess($('#txt_accessId').val());
+            }
+        }
+        else {
+            ShowModal();
+        }
+        $(".context-menu").hide();
+    });
+    //--------------------------------------------------------------------------------------
+    function ShowModal() {
+        $('#IsMenu').prop('checked', false);
+        $("#AccessModal input[type='text']").val('');
+        $('#AccessModal').modal('show');
+    }
+    //--------------------------------------------------------------------------------------
+    //Model Show Event
+    $('#AccessModal').on('shown.bs.modal', function () {
+        var id = $('#txt_accessId').val();
+        var operaion = $("#txt_operation").val();
+        if (operaion == "Update") {
+            FindAccess(id);
+        }
+        else {//Add
+            GetAccessNameFa(id);
+        }
+    })
+    //--------------------------------------------------------------------------------------
+    function HideModal() {
+        $('#AccessModal').modal('hide');
+    }
+    //--------------------------------------------------------------------------------------   
+    function GetAccessNameFa(id) {
+        $.ajax({
+            url: "/Access/GetAccessNameFa",
+            type: 'GET',
+            data: { id: id },
+            success: function (result) {
+                if (result.success == false) {
+                    alert(result.msg);
+                    return;
+                }
+                $("#ParentAccessName").val(result.AccessNameFa);
+            },
+            error: function (e) {
+                alert(CustomJsMassages.OperationError);
+            }
+        });
+    }
+    //--------------------------------------------------------------------------------------
+    function AccessModalOk() {
+        var model = CollectData();
+        if (ValidateData(model) == false) {
+            return;
+        }
+        var operation = $("#txt_operation").val();
+        if (operation == "Update") {
+            model.Id = $("#txt_accessId").val();
+            UpdateAccess(model);
+        }
+        else {//Add
+            model.ParentID = $("#txt_accessId").val();
+            AddAccess(model);
+        }
+    }
+       
+    //--------------------------------------------------------------------------------------
+    function CollectData() {
+        var model = new Object();
+        model.IsMenu = $('#IsMenu').prop('checked');
+        model.Name = $("#AccessName").val();
+        model.NameFa = $("#AccessNameFa").val();
+        model.Order = $("#Order").val();
+        model.Url = $("#Url").val();
+        return model;
+    }
+    //--------------------------------------------------------------------------------------
+    function ValidateData(model) {
+        if (model.Name.trim() == "") {
+            alert('نام دسترسی خالی است');
+            return false;
+        }
+
+        if (model.NameFa.trim() == "") {
+            alert('نام فارسی دسترسی خالی است');
+            return false;
+        }
+
+        //if (model.Order.trim() == "") {
+        //    alert('ترتیب دسترسی خالی است');
+        //    return false;
+        //}
+
+        if (model.Url.trim() == "") {
+            alert('آدرس خالی است');
+            return false;
+        }
+        return true;
+    }
+    //--------------------------------------------------------------------------------------
+    function FindAccess(id) {
+        
+        $.ajax({
+            url: "/Access/Find",
+            type: 'GET',
+            data: { id: id },
+            success: function (result) {
+                if (result.success == false) {
+                    alert(result.msg);
+                    return;
+                }
+                $("#AccessName").val(result.model.Name);
+                $("#AccessNameFa").val(result.model.NameFa);
+
+                if (result.model.Order != 0) {
+                    $("#Order").val(result.model.Order);
+                }                
+
+                $("#Url").val(result.model.Url);
+                if (result.model.IsMenu == true) {
+                    $("#IsMenu").prop("checked", true);
+                }
+                $("#ParentAccessName").val(result.model.ParentAccessName);
+            },
+            error: function () {
+                alert(CustomJsMassages.FetchDataError);
+            }
+        });
+    }
+    //--------------------------------------------------------------------------------------
+    function AddAccess(model) {
+        $.ajax({
+            url: "/Access/Add",
+            type: 'POST',
+            data: model,
+            success: function (result) {
+                if (result.success == false) {
+                    alert(result.msg);
+                    return;
+                }
+                HideModal();
+                GenerateAccessTree();
+            },
+            error: function (e) {
+                alert(CustomJsMassages.OperationError);
+            }
+        });
+    }
+    //--------------------------------------------------------------------------------------
+    function UpdateAccess(model) {
+        $.ajax({
+            url: "/Access/Update",
+            type: 'POST',
+            data: model,
+            success: function (result) {
+                if (result.success == false) {
+                    alert(result.msg);
+                    return;
+                }
+                HideModal();
+                GenerateAccessTree();
+            },
+            error: function (e) {
+                alert(CustomJsMassages.OperationError);
+            }            
+        });
+    }
+    //--------------------------------------------------------------------------------------
+    function DeleteAccess(id) {
+        $.ajax({
+            url: "/Access/Delete",
+            type: 'POST',
+            data: { id: id },
+            success: function (result) {
+                if (result.success == false) {
+                    alert(result.msg);
+                    return;
+                }
+                GenerateAccessTree();
+            },
+            error: function (e) {
+                alert(CustomJsMassages.OperationError);
+            }
+        });
+    }
+    //--------------------------------------------------------------------------------------
+</script>

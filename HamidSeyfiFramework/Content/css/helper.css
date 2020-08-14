@@ -1,0 +1,22 @@
+﻿/*********** myAlert ************/
+.alertBox {
+    position: relative;
+    bottom: 0;
+    margin: 10px;
+    text-align: right;
+    direction: rtl;
+    max-width: 600px;
+    overflow: hidden;
+    transition: all ease 1s;
+    opacity: 1;
+    font-family: Yekan;
+    font-size:14px;
+}
+
+#alertContainer {
+    position: absolute;
+    bottom: 100px;
+    right: 100px;
+    display: none;
+}
+/****************************/

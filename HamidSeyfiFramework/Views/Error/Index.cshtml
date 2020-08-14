@@ -1,0 +1,22 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_BlankForm.cshtml";
+    ViewBag.Title = "خطا";
+}
+
+<style>
+    h2, h3 {
+        text-align: center;
+        color: red;
+    }
+</style>
+
+<h2>متاسفانه خطایی رخ داده است</h2>
+
+@if (!string.IsNullOrWhiteSpace(ViewBag.ErrorMsg))
+{
+    <h3>@ViewBag.ErrorMsg</h3>
+}
+
+
+
