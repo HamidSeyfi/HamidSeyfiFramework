@@ -12,8 +12,10 @@ namespace HSF.BaseSystemModel.Helper
         InputUser = 20,
         OutputUser = 30,
         Exception = 40,
+        Empty = 50,
         LogFilterActionExecuting = 100,
         LogFilterResultExecuted = 110,
+        
 
     }
 
@@ -30,6 +32,12 @@ namespace HSF.BaseSystemModel.Helper
     {
         Fa = 1,
         En = 2
+    }
+
+    public enum UserStatusEnum
+    {
+        InActive = 0,
+        Active = 1
     }
 
 

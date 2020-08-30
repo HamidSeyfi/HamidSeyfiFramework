@@ -16,5 +16,6 @@ namespace HSF.BaseSystemModel.Model.Common
         public string FullName { get; set; }
 
         public Culture Culture { get; set; }
+        public string    Email { get; set; }
     }
 }

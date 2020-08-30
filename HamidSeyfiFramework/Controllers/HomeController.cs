@@ -10,7 +10,8 @@ namespace HSF.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            return View("About.cshtml");
+            //return View();
         }
 
         public ActionResult About()

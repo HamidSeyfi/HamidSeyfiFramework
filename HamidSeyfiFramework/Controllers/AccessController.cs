@@ -19,7 +19,7 @@ namespace HSF.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            LogBiz.Log("Access/Index", string.Empty, LogType.Menu);
+            //LogBiz.Log("Access/Index(GET)", string.Empty);
             return View();
         }
 
@@ -28,14 +28,14 @@ namespace HSF.Controllers
         {
             try
             {
-                LogBiz.Log("Access/Find", id.ToString(), LogType.InputUser);
+                //LogBiz.Log("Access/Find(GET)", id.ToString(), LogType.InputUser);
                 var model = AccessBiz.Instance.Find(id);
-                LogBiz.Log("Access/Find", model, LogType.OutputUser);
+                //LogBiz.Log("Access/Find(GET)", model, LogType.OutputUser);
                 return Json(new { success = true, model = model }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                LogBiz.Log("Access/Find", ex, LogType.OutputUser);
+                //LogBiz.Log("Access/Find(GET)", ex, LogType.OutputUser);
                 return Json(new { success = false, msg = Message.GetExceptionMessage(ex) }, JsonRequestBehavior.AllowGet);
             }
         }
@@ -46,14 +46,14 @@ namespace HSF.Controllers
         {
             try
             {
-                LogBiz.Log("Access/Add", model, LogType.InputUser);
+                //LogBiz.Log("Access/Add(POST)", model, LogType.InputUser);
                 AccessBiz.Instance.Add(model);
-                LogBiz.Log("Access/Add", model.Id.ToString(), LogType.OutputUser);
+                //LogBiz.Log("Access/Add(POST)", model.Id.ToString(), LogType.OutputUser);
                 return Json(new { success = true });
             }
             catch (Exception ex)
             {
-                LogBiz.Log("Access/Add", ex, LogType.OutputUser);
+                //LogBiz.Log("Access/Add(POST)", ex, LogType.OutputUser);
                 return Json(new { success = false, msg = Message.GetExceptionMessage(ex) });
             }
 
@@ -65,14 +65,14 @@ namespace HSF.Controllers
         {
             try
             {
-                LogBiz.Log("Access/Update", model, LogType.InputUser);
+                //LogBiz.Log("Access/Update(POST)", model, LogType.InputUser);
                 AccessBiz.Instance.Update(model);
-                LogBiz.Log("Access/Update", string.Empty, LogType.OutputUser);
+                //LogBiz.Log("Access/Update(POST)", string.Empty, LogType.OutputUser);
                 return Json(new { success = true });
             }
             catch (Exception ex)
             {
-                LogBiz.Log("Access/Update", ex, LogType.OutputUser);
+                //LogBiz.Log("Access/Update(POST)", ex, LogType.OutputUser);
                 return Json(new { success = false, msg = Message.GetExceptionMessage(ex) });
             }
         }
@@ -82,14 +82,14 @@ namespace HSF.Controllers
         {
             try
             {
-                LogBiz.Log("Access/Delete", id.ToString(), LogType.InputUser);
+                //LogBiz.Log("Access/Delete(POST)", id.ToString(), LogType.InputUser);
                 AccessBiz.Instance.Delete(id);
-                LogBiz.Log("Access/Delete", string.Empty, LogType.OutputUser);
+                //LogBiz.Log("Access/Delete(POST)", string.Empty, LogType.OutputUser);
                 return Json(new { success = true });
             }
             catch (Exception ex)
             {
-                LogBiz.Log("Access/Delete", ex, LogType.OutputUser);
+                //LogBiz.Log("Access/Delete(POST)", ex, LogType.OutputUser);
                 return Json(new { success = false, msg = Message.GetExceptionMessage(ex) });
             }
 
@@ -101,12 +101,14 @@ namespace HSF.Controllers
         {
             try
             {
+                //LogBiz.Log("Access/GenerateAccessTree(GET)", string.Empty);
                 var AccesstreeString = AccessBiz.Instance.GenerateAccessTree();
+                //LogBiz.Log("Access/GenerateAccessTree(GET)", AccesstreeString,LogType.OutputUser);
                 return Json(new { success = true, tree = AccesstreeString }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                LogBiz.Log("Access/GenerateAccessTree", ex, LogType.OutputUser);
+                //LogBiz.Log("Access/GenerateAccessTree(GET)", ex, LogType.OutputUser);
                 return Json(new { success = false, msg = Message.GetExceptionMessage(ex) }, JsonRequestBehavior.AllowGet);
             }
 
@@ -119,14 +121,14 @@ namespace HSF.Controllers
         {
             try
             {
-                LogBiz.Log("Access/GetAccessNameFa", id.ToString(), LogType.InputUser);
+                //LogBiz.Log("Access/GetAccessNameFa(GET)", id.ToString(), LogType.InputUser);
                 var result = AccessBiz.Instance.GetAccessNameFa(id);
-                LogBiz.Log("Access/GetAccessNameFa", result, LogType.OutputUser);
+                //LogBiz.Log("Access/GetAccessNameFa(GET)", result, LogType.OutputUser);
                 return Json(new { success = true, AccessNameFa = result }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                LogBiz.Log("Access/GetAccessNameFa", ex, LogType.OutputUser);
+                //LogBiz.Log("Access/GetAccessNameFa(GET)", ex, LogType.OutputUser);
                 return Json(new { success = false, msg = Message.GetExceptionMessage(ex) }, JsonRequestBehavior.AllowGet);
             }
         }
@@ -137,8 +139,10 @@ namespace HSF.Controllers
         #region Sidebar Menu        
         //[HttpGet] //هنگامی که داشت از متد پست این تابع فراخونی میشد ، به خطا میخورد
         public ActionResult GenerateSidebarMenu()
-        {                     
+        {
+            //LogBiz.Log("Access/GenerateSidebarMenu(GET/POST)", string.Empty);
             string result = AccessBiz.Instance.GenerateSidebarMenu();
+            //LogBiz.Log("Access/GenerateSidebarMenu(GET/POST)", result , LogType.OutputUser);
             return PartialView("_SidebarMenu", result);          
         }
         #endregion

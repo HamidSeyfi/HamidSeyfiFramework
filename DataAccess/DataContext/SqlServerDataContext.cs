@@ -15,61 +15,15 @@ namespace HSF.DataAccess
 
         }
 
-
-        public virtual DbSet<Access> Access { get; set; }
-        public virtual DbSet<Log> Log { get; set; }
-        public virtual DbSet<User> User { get; set; }
-        public virtual DbSet<UserAccess> UserAccess { get; set; }
-        public virtual DbSet<UserStatus> UserStatus { get; set; }
+        public  DbSet<Access> Accesses { get; set; }
+        public  DbSet<Log> Logs { get; set; }
+        public  DbSet<User> Users { get; set; }
+        public  DbSet<UserAccess> UserAccesses { get; set; }
+        public  DbSet<UserStatus> UserStatuses { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Access>()
-                .Property(e => e.Name)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Access>()
-                .Property(e => e.Url)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Access>()
-                .HasMany(e => e.UserAccess)
-                .WithRequired(e => e.Access)
-                .HasForeignKey(e => e.FK_AccessId)
-                .WillCascadeOnDelete(false);
-
-            modelBuilder.Entity<Log>()
-                .Property(e => e.LogName)
-                .IsUnicode(false);
-
-          
-
-            modelBuilder.Entity<User>()
-                .Property(e => e.Password)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<User>()
-                .Property(e => e.Email)
-                .IsUnicode(false);
-
-         
-
-            modelBuilder.Entity<User>()
-                .HasMany(e => e.Log)
-                .WithOptional(e => e.User)
-                .HasForeignKey(e => e.FK_UserId);
-
-            modelBuilder.Entity<User>()
-                .HasMany(e => e.UserAccess)
-                .WithRequired(e => e.User)
-                .HasForeignKey(e => e.FK_UserId)
-                .WillCascadeOnDelete(false);
-
-            modelBuilder.Entity<UserStatus>()
-                .HasMany(e => e.User)
-                .WithRequired(e => e.UserStatus)
-                .HasForeignKey(e => e.FK_UserStatusId)
-                .WillCascadeOnDelete(false);
+            
         }
     }
 }

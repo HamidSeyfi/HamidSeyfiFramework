@@ -58,6 +58,7 @@
     <Compile Include="Business\AccessBiz.cs" />
     <Compile Include="Business\Common\LogBiz.cs" />
     <Compile Include="Business\Common\UserSessionBiz.cs" />
+    <Compile Include="Business\UserBiz.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

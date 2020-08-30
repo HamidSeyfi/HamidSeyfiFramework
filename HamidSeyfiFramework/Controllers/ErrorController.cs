@@ -9,28 +9,12 @@ namespace HSF.Controllers
     public class ErrorController : BaseController
     {
         [HttpGet]
-        public ActionResult Index(string msg)
-        {
-            ViewBag.ErrorMsg = msg;
-            return View();
-        }
-
-        // GET: Error
-        public ActionResult General()
+        public ActionResult Index()
         {
             return View();
         }
 
-
-        public ActionResult HttpError404()
-        {
-            return View();
-        }
-
-
-        public ActionResult HttpError500()
-        {
-            return View();
-        }
+     
+        
     }
 }

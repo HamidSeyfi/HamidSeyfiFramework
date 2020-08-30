@@ -1,6 +1,7 @@
-﻿using HSF.Model.Common;
-using HSF.Model.Table;
-using HSF.Model.Wrapper;
+﻿using HSF.BaseSystemModel.Helper;
+using HSF.BaseSystemModel.Model.DTO;
+using HSF.BaseSystemModel.Model.Table;
+using HSF.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,16 +21,16 @@ namespace HSF.Business
 
         #region Public Methods   
 
-        public User Login(UserWrapper model)
+        public User Login(UserDTO model)
         {
-            if (string.IsNullOrWhiteSpace(model.UserNameOrEmail) || string.IsNullOrWhiteSpace(model.Password))
+            if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
             {
                 throw new BusinessException("برخی از فیلد ها خالی هستند");
             }
 
-            using (var context = new HSFDbContext())
+            using (var dataContext = new SqlServerDataContext())
             {
-                var result = context.Users.Where(e => (e.UserName == model.UserNameOrEmail || e.Email == model.UserNameOrEmail) && e.Password == model.Password).FirstOrDefault();
+                var result = dataContext.Users.Where(e => e.Email == model.Email && e.Password == model.Password).FirstOrDefault();
                 if (result == null)
                 {
                     throw new BusinessException("اطلاعات کاربری اشتباه است");
@@ -38,12 +39,16 @@ namespace HSF.Business
             }
         }
 
-        public UserWrapper ForgetPassword(string userNameOrEmail)
+        public User ForgetPassword(string email)
         {
-
-            using (var context = new HSFDbContext())
+            if (string.IsNullOrWhiteSpace(email))
             {
-                var user = context.Users.Where(e => e.UserName == userNameOrEmail || e.Email == userNameOrEmail).FirstOrDefault();
+                throw new BusinessException("ایمیل خالی است");
+            }
+
+            using (var dataContext = new SqlServerDataContext())
+            {
+                var user = dataContext.Users.Where(e => e.Email == email).FirstOrDefault();
                 if (user == null)
                 {
                     throw new BusinessException("کاربری با این مشخصات یافت نشد");
@@ -52,24 +57,23 @@ namespace HSF.Business
                 var random = new Random((int)System.DateTime.Now.ToBinary());
                 var newPassword = random.Next(1000, int.MaxValue).ToString();
                 user.Password = newPassword;
-                context.SaveChanges();
-                //return new UserForgetPasswordEmailWrapper
-                return new UserWrapper
-                {
-                    FullName = user.FullName,
-                    NewPassword = newPassword,
-                    Email = user.Email
-                };
+                dataContext.SaveChanges();
+
+                //var emailHeader = "فراموشی رمز عبور";
+                //var emailBody = $@"{user.FirstName} عزیز\n رمز عبور جدید شما : {newPassword}";
+                //UtilityClass.SendEmail(email, emailHeader, emailBody);
+
+                return user;
             }
         }
 
-        public User Register(UserWrapper model)
+        public User Register(UserDTO model)
         {
             if (string.IsNullOrWhiteSpace(model.Email) ||
                 string.IsNullOrWhiteSpace(model.Password) ||
-                string.IsNullOrWhiteSpace(model.FullName) ||
-                string.IsNullOrWhiteSpace(model.RePassword) ||
-                string.IsNullOrWhiteSpace(model.UserName)
+                string.IsNullOrWhiteSpace(model.FirstName) ||
+                string.IsNullOrWhiteSpace(model.LastName) ||
+                string.IsNullOrWhiteSpace(model.RePassword) 
                 )
             {
                 throw new BusinessException("برخی از فیلد ها خالی هستند");
@@ -78,56 +82,50 @@ namespace HSF.Business
 
             if (model.Password != model.RePassword)
             {
-                throw new BusinessException("کلمه عبور و تکرار آن با هم برابر نیستند");
+                throw new BusinessException("رمز عبور و تکرار آن با هم برابر نیستند");
             }
 
-            var user = new User()
+            using (var dataContext = new SqlServerDataContext())
             {
-                Email = model.Email,
-                EmailVerificationID = Guid.NewGuid(),
-                FullName = model.FullName,
-                IsAdmin = false,
-                Password = model.Password,
-                FK_UserStatus_ID = 0,
-                UserName = model.UserName
-            };
-
-            using (var context = new HSFDbContext())
-            {
-                if (context.Users.Where(e => e.UserName == model.UserName).Count() > 0)
-                {
-                    throw new BusinessException("نام کاربری تکراری است");
-                }
-
-                if (context.Users.Where(e => e.Email == model.Email).Count() > 0)
+                if (dataContext.Users.Where(e => e.Email == model.Email).Count() > 0)
                 {
                     throw new BusinessException("ایمیل تکراری است");
                 }
 
-                context.Users.Add(user);
+                var user = new User()
+                {
+                    Email = model.Email,
+                    EmailVerificationID = Guid.NewGuid(),
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    IsAdmin = false,
+                    Password = model.Password,
+                    FK_UserStatusId = (int)UserStatusEnum.InActive,
+                };
 
-                context.SaveChanges();
+
+                dataContext.Users.Add(user);
+                dataContext.SaveChanges();
 
                 return user;
             }
         }
-        
+
         public void ActivateUser(string verificationID)
         {
-            using (var myContext = new HSFDbContext())
+            using (var dataContext = new SqlServerDataContext())
             {
 
 
-                var user = myContext.Users.Where(e => e.EmailVerificationID.ToString().Replace("-", "") == verificationID).FirstOrDefault();
+                var user = dataContext.Users.Where(e => e.EmailVerificationID.ToString().Replace("-", "") == verificationID).FirstOrDefault();
                 if (user == null)
                 {
                     throw new BusinessException("کد فعال سازی معتبر نمیباشد");
                 }
-
                 else
                 {
-                    user.FK_UserStatus_ID = 1;
-                    myContext.SaveChanges();
+                    user.FK_UserStatusId = (int)UserStatusEnum.Active   ;
+                    dataContext.SaveChanges();
                 }
             }
         }
@@ -135,20 +133,6 @@ namespace HSF.Business
         #endregion
 
 
-        #region Private Methods
-
-        private void Validate(User model)
-        {
-            if (string.IsNullOrWhiteSpace(model.Email) ||
-              string.IsNullOrWhiteSpace(model.Password) ||
-              string.IsNullOrWhiteSpace(model.FullName) ||
-              string.IsNullOrWhiteSpace(model.UserName)
-              )
-            {
-                throw new BusinessException("برخی از فیلد ها خالی هستند");
-            }
-        }
-
-        #endregion
+      
     }
 }

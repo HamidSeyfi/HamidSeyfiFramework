@@ -27,8 +27,8 @@ namespace HSF.Business
         {
             using (var context = new SqlServerDataContext())
             {
-                var model = (from access in context.Access
-                             join accessParent in context.Access
+                var model = (from access in context.Accesses
+                             join accessParent in context.Accesses
                              on access.ParentId equals accessParent.Id
                              where access.Id == id
                              select new AccessDTO
@@ -52,7 +52,7 @@ namespace HSF.Business
 
             using (var context = new SqlServerDataContext())
             {
-                context.Access.Add(input);
+                context.Accesses.Add(input);
                 context.SaveChanges();
             }
         }
@@ -63,7 +63,7 @@ namespace HSF.Business
             Validate(input);
             using (var context = new SqlServerDataContext())
             {
-                var access = context.Access.Find(input.Id);
+                var access = context.Accesses.Find(input.Id);
                 access.Name = input.Name;
                 access.NameFa = input.NameFa;
                 access.IsMenu = input.IsMenu;
@@ -85,7 +85,7 @@ namespace HSF.Business
                 //context.Access.Remove(access);
                 //context.Access.Remove(accessChilds);
 
-                context.Access.RemoveRange(context.Access.Where(e => e.ParentId == id || e.Id == id).ToList());
+                context.Accesses.RemoveRange(context.Accesses.Where(e => e.ParentId == id || e.Id == id).ToList());
                 context.SaveChanges();
             }
 
@@ -101,7 +101,7 @@ namespace HSF.Business
             string result = "";
             using (var context = new SqlServerDataContext())
             {
-                var accessList = context.Access.Where(e => e.IsMenu == true).OrderBy(e => e.ParentId).ThenBy(e => e.Order)
+                var accessList = context.Accesses.Where(e => e.IsMenu == true).OrderBy(e => e.ParentId).ThenBy(e => e.Order)
                     .Select(e => new AccessDTO
                     {
                         NameFa = e.NameFa,
@@ -127,7 +127,7 @@ namespace HSF.Business
             string result = "";
             using (var context = new SqlServerDataContext())
             {
-                var accessList = context.Access.OrderBy(e => e.ParentId).ThenBy(e => e.Order).Select(e => new AccessDTO
+                var accessList = context.Accesses.OrderBy(e => e.ParentId).ThenBy(e => e.Order).Select(e => new AccessDTO
                 {
                     NameFa = e.NameFa,
                     Id = e.Id,
@@ -149,7 +149,7 @@ namespace HSF.Business
         {
             using (var context = new SqlServerDataContext())
             {
-                var result = context.Access.Where(e => e.Id == id).Select(e => e.NameFa).FirstOrDefault();
+                var result = context.Accesses.Where(e => e.Id == id).Select(e => e.NameFa).FirstOrDefault();
                 return result;
             }
         }

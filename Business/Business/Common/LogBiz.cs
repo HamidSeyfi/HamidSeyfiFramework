@@ -14,7 +14,7 @@ namespace HSF.Business.Common
 {
     public class LogBiz
     {
-        public static void Log(string logName, object log, LogType logType)
+        public static void Log(string logName, object log, LogType logType=LogType.Empty)
         {
 
             var logText = string.Empty;
@@ -27,13 +27,8 @@ namespace HSF.Business.Common
             else if (log.GetType() == typeof(Exception))
             {
                 var ex = log as Exception;
-                logText = ex.Message + "*"
-                    + ex.InnerException?.Message + "*"
-                    + ex.InnerException?.InnerException?.Message + "*"
-                    + ex.InnerException?.InnerException?.InnerException?.Message;
-
+                logText = JsonConvert.SerializeObject(new { ex.Message, ex.InnerException, ex.StackTrace });
                 logType = LogType.Exception;
-
             }
             else
             {
@@ -46,7 +41,6 @@ namespace HSF.Business.Common
 
         public static void LogFilter(RouteData routeData, LogType logType)
         {
-
             var areaName = (string)routeData.DataTokens["area"];
             var controllerName = (string)routeData.Values["controller"];
             var actionName = (string)routeData.Values["action"];
@@ -56,12 +50,12 @@ namespace HSF.Business.Common
 
         private static void LogIntoSqlServer(string logName, string logText, LogType logType)
         {
-            int userId = 1;//find it from somewhere
+            int userId = 1;//find it from somewhere else
             //var userSession = (Hamid.Model.Common.UserSession)System.Web.HttpContext.Current.Session["UserSession"];
 
             using (var context = new SqlServerDataContext())
             {
-                context.Log.Add(new Log
+                context.Logs.Add(new Log
                 {
                     Date = DateTime.Now,
                     LogName = logName,
@@ -72,8 +66,5 @@ namespace HSF.Business.Common
                 context.SaveChanges();
             }
         }
-
-
-
     }
 }

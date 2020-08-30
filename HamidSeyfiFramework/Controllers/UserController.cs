@@ -1,4 +1,8 @@
-﻿using System;
+﻿using HSF.BaseSystemModel.Helper;
+using HSF.BaseSystemModel.Model.Common;
+using HSF.BaseSystemModel.Model.DTO;
+using HSF.Business;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +14,8 @@ namespace HSF.Controllers
 {
     public class UserController : BaseController
     {
-        #region Login/Logout/Forget Password
+
+        #region Login       
 
         [HttpGet]
         public ActionResult Login()
@@ -24,38 +29,41 @@ namespace HSF.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(UserWrapper model)
+        public ActionResult Login(UserDTO model)
         {
             try
             {
                 var user = UserBiz.Instance.Login(model);
-                Session["UserSession"] = new Hamid.Model.Common.UserSession
+                Session["UserSession"] = new UserSession
                 {
-                    UserID = user.ID,
-                    UserName = user.UserName,
-                    FullName = user.FullName,
-                    Culture = Common.Culture.Fa
+                    UserID = user.Id,
+                    Email = user.Email,
+                    FullName = user.FirstName + " " + user.LastName,
                 };
-
-
-                //Messages.GetMessage("sad");
 
                 return Redirect("/Home/Index");
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMsg = ExceptionHandler.LogAndGetExceptionMessage("User/Login(Post)", ex);
+                ViewBag.ErrorMsg = Message.GetExceptionMessage(ex);
                 return View();
             }
         }
+        #endregion
 
+
+
+        #region Logout        
         [HttpGet]
         public ActionResult Logout()
         {
             Session.RemoveAll();
             return RedirectToAction("Login");
         }
+        #endregion
 
+
+        #region ForgetPassword       
         [HttpGet]
         public ActionResult ForgetPassword()
         {
@@ -64,39 +72,38 @@ namespace HSF.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ForgetPasswordPost()
+        public ActionResult ForgetPassword(UserDTO model)
         {
             try
             {
-                var model = UserBiz.Instance.ForgetPassword(Request.Form["Email"].ToString());
+                var user = UserBiz.Instance.ForgetPassword(model.Email);
 
                 //Send Forget Password Email//
                 string emailBodyHtml = RenderViewToString(ControllerContext,
                    "~/views/User/_ForgetPasswordEmail.cshtml",
-                   new UserWrapper
+                   new UserDTO
                    {
-                       FullName = model.FullName,
-                       NewPassword = model.NewPassword
+                       FullName = user.FirstName + " " + user.LastName,
+                       Password = model.Password
                    },
                    false);
 
-                Hamid.Helper.Utility.UtilityClass.SendEmail(model.Email, "فراموشی رمز عبور", emailBodyHtml);
+                var emailHeader = "فراموشی رمز عبور";
+                UtilityClass.SendEmail(model.Email, emailHeader, emailBodyHtml);
                 //////////////////////
-                ViewBag.SuccessMsg = "پسورد جدید ارسال گردید";
+                ViewBag.SuccessMsg = "رمز عبور جدید به ایمیل شما ارسال گردید";
 
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMsg = ExceptionHandler.LogAndGetExceptionMessage("User/ForgetPasswordPost(Post)", ex);
+                ViewBag.ErrorMsg = Message.GetExceptionMessage(ex);
             }
-            return View("ForgetPassword");
+            return View();
         }
-
         #endregion
 
 
-        #region Register
-
+        #region Register        
         [HttpGet]
         public ActionResult Register()
         {
@@ -109,7 +116,7 @@ namespace HSF.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Register(UserWrapper model)
+        public ActionResult Register(UserDTO model)
         {
             try
             {
@@ -118,43 +125,46 @@ namespace HSF.Controllers
                 //Send Activition Email//
                 string emailBodyHtml = RenderViewToString(ControllerContext,
                    "~/views/User/_ConfirmationEmail.cshtml",
-                   new UserWrapper
+                   new UserDTO
                    {
-                       FullName = model.FullName,
-                       URL = "http://" + Request.Url.Authority + Url.Action("Activate", "User") + "/" + user.EmailVerificationID.ToString().Replace("-", "")
+                       FullName = user.FirstName + " " + user.LastName,
+                       URL =  Request.Url.Authority + Url.Action("ActivateUser", "User") + " / " + user.EmailVerificationID.ToString().Replace(" - ", "")
                    },
                    false);
 
-                Hamid.Helper.Utility.UtilityClass.SendEmail(model.Email, "فعال سازی حساب کاربری", emailBodyHtml);
+                var emailHeader = "فراموشی رمز عبور";
+                UtilityClass.SendEmail(model.Email, emailHeader, emailBodyHtml);
                 //////////////////////
 
-                return View("RegisterSuccessfull");
+                ViewBag.SuccessMsg = "ثبت نام با موفقیت انجام شد، ایمیل فعال سازی برای شما ارسال گردد";
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMsg = ExceptionHandler.LogAndGetExceptionMessage("User/Register(Post)", ex);
-                return View(model);
+                ViewBag.ErrorMsg = Message.GetExceptionMessage(ex);
             }
-        }
+            return View();
 
+        }
+        #endregion
+
+
+        #region ActivateUser
+
+        #endregion
         [HttpGet]
-        public ActionResult Activate(string id)
+        public ActionResult ActivateUser(string id)
         {
             try
             {
                 UserBiz.Instance.ActivateUser(id);
-                ViewBag.SuccessMsg = "فعال سازی با موفقت انجام گردید";
+                ViewBag.SuccessMsg = "فعال سازی با موفقیت انجام گردید";
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMsg = ExceptionHandler.LogAndGetExceptionMessage("User/Activate(Get)", ex);
+                ViewBag.ErrorMsg = Message.GetExceptionMessage(ex);
             }
             return View("UserActivation");
         }
-
-        #endregion
-
-
         #region Private Methods
 
         [HttpGet]

@@ -59,6 +59,7 @@
     <Compile Include="Helper\Message.cs" />
     <Compile Include="Helper\Utility.cs" />
     <Compile Include="Model\Common\UserSession.cs" />
+    <Compile Include="Model\DTO\UserDTO.cs" />
     <Compile Include="Model\DTO\AccessDTO.cs" />
     <Compile Include="Model\Table\Access.cs" />
     <Compile Include="Model\Table\Log.cs" />

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HSF.BaseSystemModel.Helper
 {
-    public class Utility
+    public class UtilityClass
     {
         public static void SendEmail(string emailAddress, string subject, string body)
         {

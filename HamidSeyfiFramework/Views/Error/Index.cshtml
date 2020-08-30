@@ -1,22 +1,26 @@
 ﻿
 @{
-    Layout = "~/Views/Shared/_BlankForm.cshtml";
+    Layout = "~/Views/Shared/_Blank.cshtml";
     ViewBag.Title = "خطا";
 }
 
 <style>
-    h2, h3 {
+    h3 {
         text-align: center;
         color: red;
     }
 </style>
 
-<h2>متاسفانه خطایی رخ داده است</h2>
 
-@if (!string.IsNullOrWhiteSpace(ViewBag.ErrorMsg))
+@if (TempData["ErrorMsg"] != null)
 {
-    <h3>@ViewBag.ErrorMsg</h3>
+    <h3>@TempData["ErrorMsg"].ToString()</h3>
 }
+else
+{
+    <h3>خطایی پیش آمده است</h3>
+}
+
 
 
 
