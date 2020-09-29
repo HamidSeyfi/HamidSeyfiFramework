@@ -56,6 +56,7 @@
     <Compile Include="Helper\BusinessException.cs" />
     <Compile Include="Helper\ConnectionString.cs" />
     <Compile Include="Helper\Enums.cs" />
+    <Compile Include="Helper\ExtensionMethods.cs" />
     <Compile Include="Helper\Message.cs" />
     <Compile Include="Helper\Utility.cs" />
     <Compile Include="Model\Common\UserSession.cs" />
